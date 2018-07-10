@@ -41,6 +41,7 @@
     "react-router": "^4.3.1"
   },
   "scripts": {
+    "clean": "babel-node build/scripts/run clean",
     "dev": "webpack-dev-server --open --config build/webpack.dev.js",
     "dll": "webpack --config build/webpack.dll.js"
   }
