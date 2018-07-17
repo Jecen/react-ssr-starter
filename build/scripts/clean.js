@@ -6,10 +6,10 @@ import { cleanDir } from '../tools/fs';
  */
 function clean() {
   return Promise.all([
-    cleanDir('dist/*', {
+    cleanDir('dist', {
       nosort: true,
       dot: true,
-      ignore: ['dist/.git','dist/dll/*'],
+      ignore: [],
     }),
   ]);
 }

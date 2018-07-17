@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import webpack from 'webpack';
+import nodeExternals from 'webpack-node-externals';
 import _ from './utils'
 import pkg from '../package.json'
 import WebpackAssetsManifest from 'webpack-assets-manifest'
@@ -15,11 +16,28 @@ const testImage = /\.(bmp|gif|jpg|jpeg|png|svg)$/;
 const minimizeOpt = {
   discardComments: {
     removeAll: true
-  },
+  }
 }
 const staticAssetName = _.isDev ?
   '[path][name].[ext]?[hash:8]' :
   '[hash:8].[ext]';
+
+function overrideRules(rules, patch) {
+  return rules.map(ruleToPatch => {
+    let rule = patch(ruleToPatch);
+    if (rule.rules) {
+      rule = { ...rule,
+        rules: overrideRules(rule.rules, patch)
+      };
+    }
+    if (rule.oneOf) {
+      rule = { ...rule,
+        oneOf: overrideRules(rule.oneOf, patch)
+      };
+    }
+    return rule;
+  });
+}
 
 const config = {
   // 上下文
@@ -41,6 +59,7 @@ const config = {
     modules: ['node_modules', 'src'],
     alias: {
       "src": path.resolve(__dirname, '../src'),
+      "components": path.resolve(__dirname, '../src/components') 
     },
     extensions: [".js", ".json", ".jsx", ".css"],
   },
@@ -50,7 +69,6 @@ const config = {
     strictExportPresence: true,
 
     rules: [
-      // Rules for JS / JSX
       {
         test: testScript,
         include: [
@@ -108,8 +126,6 @@ const config = {
           ],
         },
       },
-
-      // Rules for Style Sheets
       {
         test: testStyle,
         rules: [
@@ -165,8 +181,6 @@ const config = {
           },
         ],
       },
-
-      // Rules for images
       {
         test: testImage,
         oneOf: [
@@ -204,23 +218,12 @@ const config = {
           },
         ],
       },
-
-      // Convert plain text into JS module
       {
         test: /\.txt$/,
         loader: 'raw-loader',
       },
-
-      // Convert Markdown into HTML
-      // {
-      //   test: /\.md$/,
-      //   loader: path.resolve(__dirname, './lib/markdown-loader.js'),
-      // },
-
-      // Return public URL for all assets unless explicitly excluded
-      // DO NOT FORGET to update `exclude` list when you adding a new loader
       {
-        exclude: [testScript, testStyle, testImage, /\.json$/, /\.txt$/],
+        exclude: [testScript, testStyle, testImage, /\.json$/, /\.txt$/, path.resolve(__dirname, '../public')],
         loader: 'file-loader',
         options: {
           name: staticAssetName,
@@ -262,7 +265,7 @@ const clientConfig = {
   target: 'web',
 
   entry: {
-    client: ['@babel/polyfill', './client/index.js'],
+    client: ['@babel/polyfill', './src/client.js'],
   },
 
   plugins: [
@@ -307,7 +310,7 @@ const clientConfig = {
           fs.writeFileSync(chunkFileName, JSON.stringify(chunkFiles, null, 2));
         } catch (err) {
           console.error(`ERROR: Cannot write ${chunkFileName}: `, err);
-          if (!isDebug) process.exit(1);
+          if (!_.isDev) process.exit(1);
         }
       },
     }),
@@ -338,4 +341,105 @@ const clientConfig = {
   }
 }
 
-export default clientConfig
+// 针对 node server 的打包操作
+const serverConfig = {
+  ...config,
+
+  name: 'server',
+  target: 'node',
+
+  entry: {
+    server: ['@babel/polyfill', path.resolve(__dirname, '../src/server.js')]
+  },
+
+  output: {
+    ...config.output,
+    path: path.resolve(__dirname, '../dist'),
+    filename: '[name].js',
+    chunkFilename: 'chunks/[name].js',
+    libraryTarget: 'commonjs2',
+  },
+
+  module: {
+    ...config.module,
+
+    rules: overrideRules(config.module.rules, rule => {
+      // 修改babel 的target
+      if (rule.loader === 'babel-loader') {
+        return {
+          ...rule,
+          options: {
+            ...rule.options,
+            presets: rule.options.presets.map(
+              preset =>
+              preset[0] !== '@babel/preset-env' ?
+              preset : [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    node: pkg.engines.node.match(/(\d+\.?)+/)[0],
+                  },
+                  modules: false,
+                  useBuiltIns: false,
+                  debug: false,
+                },
+              ],
+            ),
+          },
+        };
+      }
+
+      if (
+        rule.loader === 'file-loader' ||
+        rule.loader === 'url-loader' ||
+        rule.loader === 'svg-url-loader'
+      ) {
+        return {
+          ...rule,
+          options: {
+            ...rule.options,
+            emitFile: false,
+          },
+        };
+      }
+
+      return rule
+    })
+  },
+  // 外部扩展 利用clientConfig 打包出来的一部分资源
+  externals: [
+    './chunk-manifest.json',
+    './asset-manifest.json',
+    nodeExternals({
+      whitelist: [testStyle, testImage],
+    }),
+  ],
+
+  plugins: [
+    // Define free variables
+    // https://webpack.js.org/plugins/define-plugin/
+    new webpack.DefinePlugin({
+      'process.env.BROWSER': false,
+      __DEV__: _.isDev,
+    }),
+
+    // Adds a banner to the top of each generated chunk
+    // https://webpack.js.org/plugins/banner-plugin/
+    new webpack.BannerPlugin({
+      banner: 'require("source-map-support").install();',
+      raw: true,
+      entryOnly: false,
+    }),
+  ],
+
+  node: {
+    console: false,
+    global: false,
+    process: false,
+    Buffer: false,
+    __filename: false,
+    __dirname: false,
+  },
+}
+
+export default [clientConfig, serverConfig]

@@ -1,5 +1,6 @@
 {
   "name": "tpl-react",
+  "description": "天阙React模版",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -17,7 +18,9 @@
     "babel-eslint": "^8.2.5",
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.13",
+    "child_process": "^1.0.2",
     "clean-webpack-plugin": "^0.1.19",
+    "cookie-parser": "^1.4.3",
     "css-loader": "^1.0.0",
     "eslint": "^5.0.1",
     "eslint-loader": "^2.0.0",
@@ -34,6 +37,8 @@
     "precss": "^3.1.2",
     "raw-loader": "^0.5.1",
     "react-deep-force-update": "^2.1.1",
+    "react-dev-utils": "^5.0.1",
+    "react-error-overlay": "^4.0.0",
     "react-hot-loader": "^4.3.3",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
@@ -43,14 +48,24 @@
     "webpack-assets-manifest": "^3.0.1",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.0.8",
-    "webpack-dev-server": "^3.1.4"
+    "webpack-dev-middleware": "^3.1.3",
+    "webpack-dev-server": "^3.1.4",
+    "webpack-hot-middleware": "^2.22.2",
+    "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-beta.52",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-jwt": "^5.3.1",
+    "history": "^4.7.2",
     "prop-type": "^0.0.1",
+    "query-string": "^6.1.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-router": "^4.3.1"
+    "react-router": "^4.3.1",
+    "serialize-javascript": "^1.5.0",
+    "universal-router": "^6.0.0"
   },
   "browserslist": [
     ">1%",
@@ -58,10 +73,15 @@
     "Firefox ESR",
     "not ie < 9"
   ],
+  "engines": {
+    "node": ">=6.13.1",
+    "npm": ">=3.10.10"
+  },
   "scripts": {
     "clean": "babel-node build/scripts/run clean",
-    "bundle": "babel-node build/scripts/run bundle",
-    "dev": "webpack-dev-server --open --config build/webpack.dev.js",
-    "dll": "webpack --config build/webpack.dll.js"
+    "dev": "babel-node build/scripts/run dev",
+    "build-client": "babel-node build/scripts/run build --client --production",
+    "build-server": "babel-node build/scripts/run build --server --production",
+    "analyse": "babel-node build/scripts/run analyse"
   }
 }
