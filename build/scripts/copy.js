@@ -6,10 +6,6 @@ import { writeFile, copyFile, makeDir, copyDir, cleanDir } from '../tools/fs';
 import pkg from '../../package.json';
 import { format } from './run';
 
-/**
- * Copies static files such as robots.txt, favicon.ico to the
- * output (build) folder.
- */
 async function copy() {
   await makeDir('dist');
   await Promise.all([

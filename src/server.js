@@ -32,15 +32,11 @@ app.get("*", async (req, res, next) => {
     const css = new Set();
 
     const insertCss = (...styles) => {
-      // eslint-disable-next-line no-underscore-dangle
       styles.forEach(style => css.add(style._getCss()));
     };
 
-    // Global (context) variables that can be easily accessed from any React component
-    // https://facebook.github.io/react/docs/context.html
     const context = {
       insertCss,
-      // The twins below are wild, be careful!
       pathname: req.path,
       query: req.query
     };
@@ -85,8 +81,7 @@ app.use((err, req, res, next) => {
   const html = ReactDOM.renderToStaticMarkup(
     <Html
       title="Internal Server Error"
-      description={err.message} // eslint-disable-line no-underscore-dangle
-    >
+      description={err.message}>
      {err}
     </Html>
   );
@@ -94,13 +89,10 @@ app.use((err, req, res, next) => {
   res.send(`<!doctype html>${html}`);
 });
 
-// const promise = models.sync().catch(err => console.error(err.stack));
 if (!module.hot) {
-  // promise.then(() => {
   app.listen('3001', () => {
     console.info(`The server is running at http://localhost:3001/`);
   });
-  // });
 }
 
 if (module.hot) {

@@ -8,7 +8,7 @@ const staticAssetName = _.isDev ?
   '[hash:8].[ext]';
 
 /**
- * 
+ * 根据target返回基本配置
  * @param {string} target 构建目标['web','server'] 
  */
 const config = (target) => {

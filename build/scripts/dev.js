@@ -17,7 +17,6 @@ const watchOptions = {
   // ignored: /node_modules/,
 };
 
-
 // log middleware
 function createCompilationPromise(name, compiler, config) {
   return new Promise((resolve, reject) => {
@@ -56,7 +55,7 @@ async function start() {
 
   // Configure client-side hot module replacement
   const clientConfig = webpackConfig.find(config => config.name === 'client');
-  clientConfig.entry.client = ['./build/scripts/devClient']
+  clientConfig.entry.client = ['./build/scripts/dev-client']
     .concat(clientConfig.entry.client)
     .sort((a, b) => b.includes('polyfill') - a.includes('polyfill'));
   clientConfig.output.filename = clientConfig.output.filename.replace(
@@ -200,7 +199,6 @@ async function start() {
   // Launch the development server with Browsersync and HMR
   await new Promise((resolve, reject) =>
     browserSync.create().init({
-        // https://www.browsersync.io/docs/options
         server: 'src/server.js',
         middleware: [server],
         open: !process.argv.includes('--silent'),

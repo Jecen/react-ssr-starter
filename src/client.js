@@ -4,6 +4,7 @@ import App from "./components/App";
 import queryString from "query-string";
 import router from "./router";
 import history from './history'
+import { updateMeta } from './html-tool'
 const container = document.getElementById("root");
 let currentLocation = history.location;
 const scrollPositionsHistory = {};
@@ -58,7 +59,7 @@ async function onLocationChange(location, action) {
           if (elem) elem.parentNode.removeChild(elem);
           return;
         }
-        // updateMeta('description', route.description);
+        updateMeta('description', route.description);
         // Update necessary tags in <head> at runtime here, ie:
         // updateMeta('keywords', route.keywords);
         // updateCustomMeta('og:url', route.canonicalUrl);
@@ -82,9 +83,6 @@ async function onLocationChange(location, action) {
           }
         }
 
-        // Restore the scroll position if it was saved into the state
-        // or scroll to the given #hash anchor
-        // or scroll to top of the page
         window.scrollTo(scrollX, scrollY);
       }
     );
@@ -95,7 +93,6 @@ async function onLocationChange(location, action) {
 
     console.error(error);
 
-    // Do a full page reload if error occurs during client-side navigation
     if (!isInitialRender && currentLocation.key === location.key) {
       console.error("RSK will reload your page after error");
       window.location.reload();
@@ -103,8 +100,6 @@ async function onLocationChange(location, action) {
   }
 }
 
-// Handle client-side navigation by using HTML5 History API
-// For more information visit https://github.com/mjackson/history#readme
 history.listen(onLocationChange);
 onLocationChange(currentLocation);
 
