@@ -1,5 +1,5 @@
 
-import { cleanDir } from '../tools/fs';
+import { cleanDir, makeDir, writeFile } from '../tools/fs';
 
 /**
  * Cleans up the output (build) directory.
@@ -11,6 +11,7 @@ function clean() {
       dot: true,
       ignore: [],
     }),
+    makeDir('dist')
   ]);
 }
 

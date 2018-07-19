@@ -5,5 +5,7 @@
       "@babel/preset-flow",
       ["@babel/preset-stage-2", { "decoratorsLegacy": true }]
     ],
-    "ignore": ["node_modules", "dist"]
+    "ignore": ["node_modules", "dist"],
+    "plugins": [
+    ]
   }

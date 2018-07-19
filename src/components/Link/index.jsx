@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import history from "src/history";
+import s from './Link.scss'
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import { Icon } from 'antd'
 
 class Link extends Component {
   static defaultProps = {
@@ -29,11 +32,13 @@ class Link extends Component {
   render() {
     const { to, children, ...props } = this.props;
     return (
-      <a href={to} {...props} onClick={this.handleClick}>
-        {children}
+      <a className={s.link} href={to} {...props} onClick={this.handleClick}>
+        <Icon type='link' />{children}
+        
+        {/* {children} */}
       </a>
     );
   }
 }
 
-export default Link;
+export default withStyles(s)(Link);

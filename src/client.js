@@ -1,14 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
-
 import queryString from "query-string";
 import router from "./router";
 import history from './history'
 const container = document.getElementById("root");
 let currentLocation = history.location;
 const scrollPositionsHistory = {};
-const context = {};
+const context = {
+  insertCss: (...styles) => {
+    const removeCss = styles.map(x => x._insertCss());
+    return () => {
+      removeCss.forEach(f => f());
+    };
+  },
+};
 
 async function onLocationChange(location, action) {
   // Remember the latest scroll position for the previous location
