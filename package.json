@@ -19,6 +19,7 @@
     "babel-loader": "^7.1.5",
     "babel-plugin-import": "^1.8.0",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.13",
+    "browser-sync": "^2.24.5",
     "child_process": "^1.0.2",
     "clean-webpack-plugin": "^0.1.19",
     "cookie-parser": "^1.4.3",

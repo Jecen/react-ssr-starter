@@ -42,8 +42,8 @@ async function onLocationChange(location, action) {
       history.replace(route.redirect);
       return;
     }
-
-    ReactDOM.render(
+    const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render;
+    renderReactApp(
       <App context={context}>{route.component}</App>,
       container,
       () => {

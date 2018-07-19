@@ -13,7 +13,10 @@ _.test = {
   style,
   image,
 }
-
+/**
+ * 获取相对路径
+ * @param {*} p 路径
+ */
 _.resolvePath = (p) => {
   return path.resolve(__dirname, p)
 }

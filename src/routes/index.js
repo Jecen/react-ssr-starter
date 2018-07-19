@@ -5,6 +5,7 @@ const routes = {
     const route = await next();
     if (route) {
       route.title = `天阙React模版-${route.title || ''}`
+      route.description = '杭州天阙技术有限公司'
     }
     return route;
   },
