@@ -83,7 +83,7 @@
   },
   "scripts": {
     "clean": "babel-node build/scripts/run clean",
-    "dev": "babel-node build/scripts/run dev",
+    "dev": "babel-node build/scripts/run dev --development",
     "build-client": "babel-node build/scripts/run build --client --production",
     "build-server": "babel-node build/scripts/run build --server --production",
     "analyse": "babel-node build/scripts/run analyse"

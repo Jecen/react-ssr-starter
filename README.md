@@ -54,3 +54,9 @@ yarn build-client
 ```
 yarn build-server
 ```
+
+## TODO
+* Http Client
+* Api Proxy
+* State Manager
+* Analyse Mode

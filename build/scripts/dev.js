@@ -47,7 +47,7 @@ function createCompilationPromise(name, compiler, config) {
 
 let server;
 
-async function start() {
+async function startDevServer() {
   if (server) return server;
   server = express();
   server.use(errorOverlayMiddleware());
@@ -217,4 +217,4 @@ async function start() {
   return server;
 }
 
-export default start;
+export default startDevServer;
