@@ -32,7 +32,7 @@ class Link extends Component {
   render() {
     const { to, children, ...props } = this.props;
     return (
-      <a className={s.link} href={to} {...props} onClick={this.handleClick}>
+      <a className={s.link} {...props} onClick={this.handleClick}>
         <Icon type='link' />{children}
         
         {/* {children} */}

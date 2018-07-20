@@ -5,6 +5,8 @@ const ContextType = {
   insertCss: PropTypes.func.isRequired,
   pathname: PropTypes.string.isRequired,
   query: PropTypes.object,
+  nav: PropTypes.object,
+  fetch: PropTypes.func,
 };
 
 class App extends React.PureComponent {

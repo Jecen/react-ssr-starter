@@ -2,6 +2,7 @@ import path from 'path';
 import webpack from 'webpack';
 import HappyPackPlugins from './happypack.config';
 import _ from './utils'
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 
 const staticAssetName = _.isDev ?
   '[path][name].[ext]?[hash:8]' :
@@ -157,6 +158,20 @@ const config = (target) => {
 
     devtool: _.isDev ? 'cheap-module-inline-source-map' : 'source-map',
 
+    optimization: {
+      minimizer: [
+        new UglifyJSPlugin({
+          cache: true,
+          parallel: true,
+          sourceMap: _.isDev, // set to true if you want JS source maps
+          uglifyOptions: {
+            compress: {
+              drop_console: !_.isDev
+            }
+          }
+        })
+      ],
+    },
   }
 }
 

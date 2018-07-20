@@ -8,7 +8,10 @@ import ReactDOM from "react-dom/server";
 import App from "components/App";
 import Html from "components/Html";
 import path from "path";
-import chunks from './chunk-manifest.json'; 
+import chunks from './chunk-manifest.json';
+import nodeFetch from 'node-fetch'
+import Http from './http'
+import history from './history'
 
 process.on("unhandledRejection", (reason, p) => {
   console.error("Unhandled Rejection at:", p, "reason:", reason);
@@ -38,7 +41,11 @@ app.get("*", async (req, res, next) => {
     const context = {
       insertCss,
       pathname: req.path,
-      query: req.query
+      query: req.query,
+      fetch: Http(nodeFetch, {
+        baseUrl: '',
+        cookie: req.headers.cookie,
+      }),
     };
 
     const route = await router.resolve(context);

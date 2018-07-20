@@ -71,6 +71,7 @@ const clientConfig = {
   ],
 
   optimization: {
+    ...clientBase.optimization,
     splitChunks: {
       cacheGroups: {
         commons: {

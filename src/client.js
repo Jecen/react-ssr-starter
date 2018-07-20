@@ -1,3 +1,4 @@
+import 'whatwg-fetch'
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
@@ -5,6 +6,8 @@ import queryString from "query-string";
 import router from "./router";
 import history from './history'
 import { updateMeta } from './html-tool'
+import Http from './http'
+
 const container = document.getElementById("root");
 let currentLocation = history.location;
 const scrollPositionsHistory = {};
@@ -15,10 +18,14 @@ const context = {
       removeCss.forEach(f => f());
     };
   },
+  fetch: Http(fetch, {
+    baseUrl: '',
+  }),
+  nav: history
 };
 
 async function onLocationChange(location, action) {
-  // Remember the latest scroll position for the previous location
+ // Remember the latest scroll position for the previous location
   scrollPositionsHistory[currentLocation.key] = {
     scrollX: window.pageXOffset,
     scrollY: window.pageYOffset

@@ -6,6 +6,7 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware';
 import webpackConfig from '../webpack.config';
+import proxy from 'http-proxy-middleware'
 import run, {
   format
 } from './run';
@@ -52,6 +53,8 @@ async function startDevServer() {
   server = express();
   server.use(errorOverlayMiddleware());
   server.use(express.static('./public'));
+
+  server.use('/api', proxy({target: 'http://192.168.110.101:8082', changeOrigin: true}))
 
   // Configure client-side hot module replacement
   const clientConfig = webpackConfig.find(config => config.name === 'client');

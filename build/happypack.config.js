@@ -14,8 +14,6 @@ const minimizeOpt = {
   }
 }
 
-
-
 const getBabelOption = (target) => {
   const babelPlugins = [
     ...(_.isDev ? [] : ['@babel/transform-react-constant-elements']),
