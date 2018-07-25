@@ -37,14 +37,22 @@ app.get("*", async (req, res, next) => {
     const insertCss = (...styles) => {
       styles.forEach(style => css.add(style._getCss()));
     };
-
+    const cookie = req.headers.cookie
     const context = {
       insertCss,
       pathname: req.path,
       query: req.query,
       fetch: Http(nodeFetch, {
-        baseUrl: '',
-        cookie: req.headers.cookie,
+        conf: {
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...(cookie ? {
+              Cookie: cookie
+            } : null),
+          },
+        }
       }),
     };
 

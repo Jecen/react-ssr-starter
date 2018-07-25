@@ -20,4 +20,11 @@ _.test = {
 _.resolvePath = (p) => {
   return path.resolve(__dirname, p)
 }
+
+_.proxy = {
+  '/api': {
+    target: 'http://192.168.110.101:8082',
+    changeOrigin: true
+  }
+}
 module.exports = _

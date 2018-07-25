@@ -6,7 +6,7 @@ import queryString from "query-string";
 import router from "./router";
 import history from './history'
 import { updateMeta } from './html-tool'
-import Http from './http'
+import Http, {HttpError} from './http'
 
 const container = document.getElementById("root");
 let currentLocation = history.location;
@@ -19,7 +19,27 @@ const context = {
     };
   },
   fetch: Http(fetch, {
-    baseUrl: '',
+    conf: {
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    },
+    before: [
+      ([url, opt]) => {
+        console.log('hook1', url, opt)
+      },
+      ([url, opt]) => {
+        console.log('hook2', url, opt)
+      }
+    ],
+    after: [
+      (rsp) => {
+        console.log('after hook1', rsp)
+      },
+    ],
+    timeout: 5000
   }),
   nav: history
 };

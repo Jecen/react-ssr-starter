@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Button, message } from "antd";
 import PropTypes from "prop-types";
+import tFetch from 'src/http'
 
 class Login extends Component {
   constructor(props) {
@@ -10,7 +11,7 @@ class Login extends Component {
 
   static contextTypes = {
     nav: PropTypes.object,
-    fetch: PropTypes.func
+    fetch: PropTypes.object
   };
 
   static defaultProps = {};
@@ -20,24 +21,13 @@ class Login extends Component {
   handleClick = async () => {
     const { nav, fetch } = this.context;
     try {
-      const rst = await fetch("/api/login.action", {
-        body: JSON.stringify({
-          username: "lfwdlx0@xhqsg",
-          password: "11111111"
-        })
+      const rst = await fetch.post("/api/login.action", {
+        username: "lfwdlx0@xhqsg",
+        password: "11111111"
       });
-      const data = await rst.json()
-      const { success, user, token, msg } = data;
-      if (success) {
-        message.success("登录成功");
-        nav.push("/home");
-        // TODO add user Info to state
-      } else {
-        message.error(msg);
-      }
-      console.log(rst);
+      console.log('login page get rst!!', rst)
     } catch (error) {
-      console.log(error);
+      console.log('login page get error!!', error);
     }
   };
 

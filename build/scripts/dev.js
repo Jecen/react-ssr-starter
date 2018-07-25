@@ -54,7 +54,9 @@ async function startDevServer() {
   server.use(errorOverlayMiddleware());
   server.use(express.static('./public'));
 
-  server.use('/api', proxy({target: 'http://192.168.110.101:8082', changeOrigin: true}))
+  Object.entries(_.proxy).forEach(([url, opt]) => {
+    server.use(url, proxy(opt))
+  })
 
   // Configure client-side hot module replacement
   const clientConfig = webpackConfig.find(config => config.name === 'client');

@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {message} from 'antd'
 
 const ContextType = {
   insertCss: PropTypes.func.isRequired,
   pathname: PropTypes.string.isRequired,
   query: PropTypes.object,
   nav: PropTypes.object,
-  fetch: PropTypes.func,
+  fetch: PropTypes.object,
 };
 
 class App extends React.PureComponent {
@@ -19,6 +20,13 @@ class App extends React.PureComponent {
 
   getChildContext() {
     return this.props.context;
+  }
+
+  componentWillMount(){
+    const {fetch} = this.props.context
+    fetch.setErrorHook((error) => {
+      message.error(error.message, 1)
+    })
   }
 
   render() {
