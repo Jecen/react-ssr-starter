@@ -6,7 +6,6 @@
 * Add [antd](https://ant.design/index-cn)
 * Add [happyPack](https://github.com/amireh/happypack)
 * Del [graphql](https://graphql.org)
-* Del fetch
 
 ## Structure
 
@@ -32,6 +31,8 @@
 |    +-- router.js [系统路由实例]
 |    |
 |    +-- html-tool.js [针对html的操作方法]
+|    |
+|    +-- http.js [fetch 实例]
 |
 +-- ... [项目相关配置]
 ```
@@ -56,7 +57,7 @@ yarn build-server
 ```
 
 ## TODO
-* Http Client
-* Api Proxy
+* ~~Http Client~~
+* ~~Api Proxy~~
 * State Manager
 * Analyse Mode
