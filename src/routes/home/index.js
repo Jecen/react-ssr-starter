@@ -1,8 +1,8 @@
-import React from 'react';
-import Layout from 'components/Layout';
-import Home from './home';
+import React from 'react'
+import Layout from 'components/Layout'
+import Home from './home'
 
-const title = 'Home Page';
+const title = 'Home Page'
 
 function action() {
   return {
@@ -13,7 +13,7 @@ function action() {
         <Home />
       </Layout>
     ),
-  };
+  }
 }
 
-export default action;
+export default action

@@ -1,7 +1,7 @@
-import React from 'react';
-import Login from './login';
+import React from 'react'
+import Login from './login'
 
-const title = 'Login Page';
+const title = 'Login Page'
 
 function action() {
   return {
@@ -10,7 +10,7 @@ function action() {
     component: (
       <Login />
     ),
-  };
+  }
 }
 
-export default action;
+export default action

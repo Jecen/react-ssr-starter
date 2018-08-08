@@ -1,7 +1,7 @@
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import serialize from 'serialize-javascript';
+import React from 'react'
+import PropTypes from 'prop-types'
+import serialize from 'serialize-javascript'
 import resetCss from '../assets/reset-1.3.3.css'
 
 class Html extends React.Component {
@@ -25,7 +25,7 @@ class Html extends React.Component {
   };
 
   render() {
-    const { title, description, styles, scripts, app, children } = this.props;
+    const { title, description, styles, scripts, app, children } = this.props
     return (
       <html lang="en">
         <head>
@@ -42,11 +42,11 @@ class Html extends React.Component {
           {styles.map(style => {
             return (
               <style
-              key={style.id}
-              id={style.id}
-              dangerouslySetInnerHTML={{ __html: style.cssText }}
-            />
-          )})}
+                key={style.id}
+                id={style.id}
+                dangerouslySetInnerHTML={{ __html: style.cssText }}
+              />
+            )})}
           <style
             key={'reset-css'}
             id={'reset-css'}
@@ -59,8 +59,8 @@ class Html extends React.Component {
           {scripts.map(script => <script key={script} src={script} />)}
         </body>
       </html>
-    );
+    )
   }
 }
 
-export default Html;
+export default Html

@@ -34,7 +34,9 @@
     "happypack": "^5.0.0",
     "html-webpack-plugin": "^3.2.0",
     "http-proxy-middleware": "^0.18.0",
+    "husky": "^0.14.3",
     "isomorphic-style-loader": "^4.0.0",
+    "lint-staged": "^7.2.0",
     "node-sass": "^4.9.2",
     "null-loader": "^0.1.1",
     "postcss-import": "^11.1.0",
@@ -94,6 +96,14 @@
     "dev": "babel-node build/scripts/run dev --development",
     "build-client": "babel-node build/scripts/run build --client --production",
     "build-server": "babel-node build/scripts/run build --server --production",
-    "analyse": "babel-node build/scripts/run analyse"
+    "analyse": "babel-node build/scripts/run analyse",
+    "precommit": "lint-staged",
+    "lint": "eslint src"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

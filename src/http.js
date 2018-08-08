@@ -82,17 +82,17 @@ class httpWrapper {
         finalOpt.body = typeof params === 'string' ? params : JSON.stringify(params)
       } else if (contentType.indexOf('application/x-www-form-urlencoded') > -1) {
         finalOpt.body = Object.keys(params).map((key) => {
-            return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
-          })
+          return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+        })
           .join('&')
       } else if (contentType.indexOf('multipart/form-data') > -1) {
-        finalOpt.body = _getQueryData(params, 'formData')
+        finalOpt.body = this._getQueryData(params, 'formData')
       }
     }
     return Object.assign({}, this.config, finalOpt)
   }
 
-  _checkResponse = (rsp, reject) => true
+  _checkResponse = () => true
 
   _initUrl = (url, method, opt, params) => {
     const urlType = url.indexOf('://') !== -1 ? 'FULL' : 'PATH'
@@ -128,7 +128,7 @@ class httpWrapper {
     })
 
     const [finalUrl, finalOpt] = this.beforeHooks.reduce(([url, opt], hook) => {
-      return hook([url, opt]) || [url, opt];
+      return hook([url, opt]) || [url, opt]
     }, [fetchUrl, fetchOpt])
 
     return new Promise((resolve, reject) => {
@@ -142,7 +142,7 @@ class httpWrapper {
         reject(error)
         !isOver && this.errorHook(error)
         isOver = true
-      }, this.timeout);
+      }, this.timeout)
 
       fetch(finalUrl, finalOpt)
         .then((rsp) => {
@@ -161,14 +161,14 @@ class httpWrapper {
         })
         .then((rsp) => {
           this.afterHooks.forEach(hook => {
-             if (!isOver) {
-               const hookRst = hook(rsp)
-               if (hookRst instanceof HttpError) {
+            if (!isOver) {
+              const hookRst = hook(rsp)
+              if (hookRst instanceof HttpError) {
                 reject(hookRst)
                 !isOver && this.errorHook(hookRst)
                 isOver = true
-               }
-             }
+              }
+            }
             // !isOver && hook(rsp, (error) => {
             //   reject(error)
             //   !isOver && this.errorHook(error)
@@ -230,7 +230,7 @@ function creatHttpClient(fetch, option) {
 
   allowMethod.forEach(m => {
     client[m] = async (url, params, opt) => clientWrapper[m](fetch, url, params, opt)
-  });
+  })
 
   return client
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {message} from 'antd'
+import React from 'react'
+import PropTypes from 'prop-types'
+import { message } from 'antd'
 import Store from '../store'
 
 const ContextType = {
@@ -9,12 +9,11 @@ const ContextType = {
   query: PropTypes.object,
   nav: PropTypes.object,
   fetch: PropTypes.object,
-};
+}
 
 class App extends React.Component {
   constructor(props) {
     super(props)
-    const {context: {fetch}} = props
     this.state = {
       store: {}
     }
@@ -30,10 +29,10 @@ class App extends React.Component {
   };
 
   getChildContext() {
-    return {...this.props.context, store: this.state.store};
+    return {...this.props.context, store: this.state.store}
   }
 
-  componentWillMount(){
+  UNSAFE_componentWillMount(){
     const {fetch, nav} = this.props.context
     fetch.setErrorHook((error) => {
       message.error(error.message, 1)
@@ -45,7 +44,6 @@ class App extends React.Component {
         nav.replace('/login')
       }
     })
-    const { store } = this.state
     this.setState({
       store: new Store(fetch)
     })
@@ -59,4 +57,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default App

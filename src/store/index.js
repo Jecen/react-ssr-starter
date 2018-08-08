@@ -1,4 +1,4 @@
-import {observable, action, autorun, reaction, when} from 'mobx';
+import {observable, action, autorun, when} from 'mobx'
 import history from '../history'
 // mobx.configure({ enforceActions: true })
 class GlobalStore {
@@ -9,7 +9,7 @@ class GlobalStore {
     when(
       () => !this.isInitState,
       () => this.resetStore()
-    );
+    )
 
     autorun(() => {
       if(this.isInitState && typeof localStorage !== 'undefined') {
@@ -27,10 +27,10 @@ class GlobalStore {
   @observable isInitState = false
 
   @action('登录') login = async (username, password, isRemember) => {
-    const rst = await this.http.post("/api/login.action", {
+    const rst = await this.http.post('/api/login.action', {
       username,
       password
-    });
+    })
 
     this.state.user = rst.user
     this.state.token = rst.token

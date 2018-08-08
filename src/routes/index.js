@@ -2,12 +2,12 @@
 const routes = {
   path: '/', 
   async action({ next }) {
-    const route = await next();
+    const route = await next()
     if (route) {
       route.title = `天阙React模版-${route.title || ''}`
       route.description = '杭州天阙技术有限公司'
     }
-    return route;
+    return route
   },
   children: [{
     path: '/',
@@ -25,4 +25,4 @@ const routes = {
   }]
 }
 
-export default routes;
+export default routes
