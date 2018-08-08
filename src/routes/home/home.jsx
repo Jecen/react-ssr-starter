@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 
 class Home extends Component {
   static contextTypes = {
-    nav: PropTypes.object
+    nav: PropTypes.object,
+    store: PropTypes.any,
   };
   static defaultProps = {};
 
@@ -16,9 +17,8 @@ class Home extends Component {
   }
 
   handleClick = () => {
-    this.context.nav.push("/login");
-
-    console.log(this.context.nav);
+    const {store:{logout}} = this.context
+    logout()
   };
 
   render() {

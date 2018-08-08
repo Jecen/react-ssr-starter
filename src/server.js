@@ -10,12 +10,11 @@ import Html from "components/Html";
 import path from "path";
 import chunks from './chunk-manifest.json';
 import nodeFetch from 'node-fetch'
-import Http from './http'
+import Http, {HttpError, httpConfig} from './http'
 import history from './history'
 
 process.on("unhandledRejection", (reason, p) => {
   console.error("Unhandled Rejection at:", p, "reason:", reason);
-  // send entire app down. Process manager will restart it
   process.exit(1);
 });
 
@@ -29,31 +28,31 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// pase
+// page
 app.get("*", async (req, res, next) => {
   try {
     const css = new Set();
-
     const insertCss = (...styles) => {
       styles.forEach(style => css.add(style._getCss()));
     };
     const cookie = req.headers.cookie
+    const httpClient = Http(nodeFetch, {
+      ...httpConfig,
+      conf: {
+        ...httpConfig.conf,
+        headers: {
+          ...httpConfig.conf.headers,
+          ...(cookie ? {
+            Cookie: cookie
+          } : null),
+        },
+      }
+    })
     const context = {
       insertCss,
       pathname: req.path,
       query: req.query,
-      fetch: Http(nodeFetch, {
-        conf: {
-          credentials: 'include',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            ...(cookie ? {
-              Cookie: cookie
-            } : null),
-          },
-        }
-      }),
+      fetch: httpClient,
     };
 
     const route = await router.resolve(context);

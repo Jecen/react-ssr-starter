@@ -69,6 +69,7 @@ const config = (target) => {
         {
           test: _.test.style,
           exclude: [_.resolvePath('../src'), /node_modules\/.*antd/],
+          include: _.resolvePath('../src/assets'),
           issuer: {
             not: [_.test.style]
           },

@@ -6,11 +6,14 @@ import queryString from "query-string";
 import router from "./router";
 import history from './history'
 import { updateMeta } from './html-tool'
-import Http, {HttpError} from './http'
+import Http, {HttpError, httpConfig} from './http'
 
 const container = document.getElementById("root");
+
 let currentLocation = history.location;
+
 const scrollPositionsHistory = {};
+const httpClient = Http(fetch, { ...httpConfig })
 const context = {
   insertCss: (...styles) => {
     const removeCss = styles.map(x => x._insertCss());
@@ -18,30 +21,8 @@ const context = {
       removeCss.forEach(f => f());
     };
   },
-  fetch: Http(fetch, {
-    conf: {
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-    before: [
-      ([url, opt]) => {
-        console.log('hook1', url, opt)
-      },
-      ([url, opt]) => {
-        console.log('hook2', url, opt)
-      }
-    ],
-    after: [
-      (rsp) => {
-        console.log('after hook1', rsp)
-      },
-    ],
-    timeout: 5000
-  }),
-  nav: history
+  fetch: httpClient,
+  nav: history,
 };
 
 async function onLocationChange(location, action) {
@@ -70,6 +51,7 @@ async function onLocationChange(location, action) {
       history.replace(route.redirect);
       return;
     }
+
     const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render;
     renderReactApp(
       <App context={context}>{route.component}</App>,

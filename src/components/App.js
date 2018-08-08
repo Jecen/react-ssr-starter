@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {message} from 'antd'
+import Store from '../store'
 
 const ContextType = {
   insertCss: PropTypes.func.isRequired,
@@ -10,23 +11,47 @@ const ContextType = {
   fetch: PropTypes.object,
 };
 
-class App extends React.PureComponent {
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    const {context: {fetch}} = props
+    this.state = {
+      store: {}
+    }
+  }
   static propTypes = {
     context: PropTypes.shape(ContextType).isRequired,
     children: PropTypes.element.isRequired,
   };
 
-  static childContextTypes = ContextType;
+  static childContextTypes = {
+    ...ContextType,
+    store: PropTypes.object
+  };
 
   getChildContext() {
-    return this.props.context;
+    return {...this.props.context, store: this.state.store};
   }
 
   componentWillMount(){
-    const {fetch} = this.props.context
+    const {fetch, nav} = this.props.context
     fetch.setErrorHook((error) => {
       message.error(error.message, 1)
     })
+    fetch.injectAfter((rsp) => {
+      console.log('after hook1', rsp)
+      if (rsp.code === 40101) { // token 失效
+        console.log(rsp.msg)
+        nav.replace('/login')
+      }
+    })
+    const { store } = this.state
+    this.setState({
+      store: new Store(fetch)
+    })
+  }
+  componentDidMount(){
+    this.state.store.resetStore()
   }
 
   render() {

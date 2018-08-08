@@ -94,7 +94,7 @@ class httpWrapper {
 
   _checkResponse = (rsp, reject) => true
 
-  _initUrl = (url, method, opt) => {
+  _initUrl = (url, method, opt, params) => {
     const urlType = url.indexOf('://') !== -1 ? 'FULL' : 'PATH'
 
     let queryString = null
@@ -119,7 +119,7 @@ class httpWrapper {
 
   _sendRequest = (fetch, url, method = 'GET', params = {}, opt = {}) => {
 
-    let fetchUrl = this._initUrl(url, method, opt)
+    let fetchUrl = this._initUrl(url, method, opt, params)
 
     let fetchOpt = this._getRequestOptions({
       opt,
@@ -135,8 +135,8 @@ class httpWrapper {
       let isOver = false
       setTimeout(() => {
         const error = new HttpError({
-          message: 'time out !!!',
-          code: 'TIME_OUT_CODE',
+          message: '请求超时',
+          code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
           httpStatus: 901,
         })
         reject(error)
@@ -161,12 +161,21 @@ class httpWrapper {
         })
         .then((rsp) => {
           this.afterHooks.forEach(hook => {
-            !isOver && hook(rsp, (error) => {
-              reject(error)
-              !isOver && this.errorHook(error)
-              isOver = true
-            })
+             if (!isOver) {
+               const hookRst = hook(rsp)
+               if (hookRst instanceof HttpError) {
+                reject(hookRst)
+                !isOver && this.errorHook(hookRst)
+                isOver = true
+               }
+             }
+            // !isOver && hook(rsp, (error) => {
+            //   reject(error)
+            //   !isOver && this.errorHook(error)
+            //   isOver = true
+            // })
           })
+          isOver = true
           resolve(rsp)
         })
     })
@@ -225,6 +234,30 @@ function creatHttpClient(fetch, option) {
 
   return client
 
+}
+
+export const httpConfig = {
+  conf: {
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  },
+  before: [
+    ([url, opt]) => {
+      console.log('hook1', url, opt)
+    },
+    ([url, opt]) => {
+      console.log('hook2', url, opt)
+    }
+  ],
+  after: [
+    (rsp) => {
+      console.log('after hook1', rsp)
+    },
+  ],
+  timeout: 5000
 }
 
 export default creatHttpClient
