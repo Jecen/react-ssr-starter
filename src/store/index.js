@@ -5,17 +5,6 @@ class GlobalStore {
   constructor(http){
     this.http = http
     this.STORAGE_KEY = 'tq-react-tpl-store-key'
-
-    when(
-      () => !this.isInitState,
-      () => this.resetStore()
-    )
-
-    autorun(() => {
-      if(this.isInitState && typeof localStorage !== 'undefined') {
-        this.isInitState && localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state))
-      }
-    })
   }
   // store
   @observable state = {
@@ -25,6 +14,17 @@ class GlobalStore {
   }
 
   @observable isInitState = false
+
+  handleWhen = when(
+    () => !this.isInitState,
+    () => this.resetStore && this.resetStore()
+  )
+
+  handleAutoRun = autorun(() => {
+    if(this.isInitState && typeof localStorage !== 'undefined') {
+      this.isInitState && localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state))
+    }
+  })
 
   @action('登录') login = async (username, password, isRemember) => {
     const rst = await this.http.post('/api/login.action', {

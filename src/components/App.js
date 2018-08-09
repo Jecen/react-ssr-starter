@@ -48,8 +48,8 @@ class App extends React.Component {
       store: new Store(fetch)
     })
   }
-  componentDidMount(){
-    this.state.store.resetStore()
+  componentDidMount() {
+    this.state.store.resetStore && this.state.store.resetStore()
   }
 
   render() {

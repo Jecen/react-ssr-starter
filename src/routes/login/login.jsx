@@ -1,18 +1,18 @@
-import React, { Component } from "react";
-import { Button, message, Form, Icon, Input, Checkbox } from "antd";
-import PropTypes from "prop-types";
+import React, { Component } from 'react'
+import { Button, message, Form, Icon, Input, Checkbox } from 'antd'
+import PropTypes from 'prop-types'
 import s from './login.scss'
-import withStyles from 'isomorphic-style-loader/lib/withStyles';
-const FormItem = Form.Item;
+import withStyles from 'isomorphic-style-loader/lib/withStyles'
+const FormItem = Form.Item
 
 class Login extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       username: '',
       password: '',
       isRemember: false,
-    };
+    }
   }
 
   static contextTypes = {
@@ -22,10 +22,12 @@ class Login extends Component {
 
   static defaultProps = {};
 
-  static propTypes = {};
+  static propTypes = {
+    form: PropTypes.any
+  };
 
   login = async ({username , password , remember}) => {
-    const { nav, store } = this.context;
+    const { nav, store } = this.context
     const { state } = store
     try {
       // const rst = await store.login('lfwdlx0@xhqsg', '11111111', false)
@@ -34,22 +36,22 @@ class Login extends Component {
       console.log('login page get rst!!', rst)
       nav.push('/home')
     } catch (error) {
-      console.log('login page get error!!', error);
+      console.log('login page get error!!', error)
     }
   };
 
   handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        const {username , password , remember} = values
+        // const {username , password , remember} = values
         this.login(values)
       }
-    });
+    })
   }
   
   componentDidMount() {
-    const { store } = this.context;
+    const { store } = this.context
     const { state: { remember } } = store
     if (remember) {
       const { username, password } = remember
@@ -57,7 +59,7 @@ class Login extends Component {
         username,
         password,
         remember: !!remember
-      });
+      })
     }
   }
 
@@ -95,8 +97,8 @@ class Login extends Component {
           </FormItem>
         </Form>
       </div>
-    );
+    )
   }
 }
 
-export default Form.create()(withStyles(s)(Login));
+export default Form.create()(withStyles(s)(Login))

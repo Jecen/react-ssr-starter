@@ -1,13 +1,11 @@
-import HappyPack from 'happypack';
+import HappyPack from 'happypack'
 import _ from './utils'
 import pkg from '../package.json'
-import path from 'path'
 
 const happyThreadPool = HappyPack.ThreadPool({
   size: 5
 })
 
-const testStyle = /\.(css|less|styl|scss|sass|sss)$/;
 const minimizeOpt = {
   discardComments: {
     removeAll: true
@@ -19,15 +17,15 @@ const getBabelOption = (target) => {
     ...(_.isDev ? [] : ['@babel/transform-react-constant-elements']),
     ...(_.isDev ? [] : ['@babel/transform-react-inline-elements']),
     ...(_.isDev ? [] : ['transform-react-remove-prop-types']),
-    ["@babel/plugin-proposal-decorators", { "legacy": true }],
-    ["@babel/plugin-proposal-class-properties", { "loose" : true }]
+    ['@babel/plugin-proposal-decorators', { 'legacy': true }],
+    ['@babel/plugin-proposal-class-properties', { 'loose' : true }]
 
   ]
   if (target === 'web') {
-    babelPlugins.push(["import", {
-      "libraryName": "antd",
-      "libraryDirectory": "es",
-      "style": "css"
+    babelPlugins.push(['import', {
+      'libraryName': 'antd',
+      'libraryDirectory': 'es',
+      'style': 'css'
     }])
   }
   return {

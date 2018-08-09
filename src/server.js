@@ -34,7 +34,7 @@ app.get('*', async (req, res, next) => {
       styles.forEach(style => css.add(style._getCss()))
     }
     const cookie = req.headers.cookie
-    const httpClient = Http(nodeFetch, {
+    const httpClient = Http({
       ...httpConfig,
       conf: {
         ...httpConfig.conf,
@@ -45,7 +45,7 @@ app.get('*', async (req, res, next) => {
           } : null),
         },
       }
-    })
+    }, nodeFetch)
     const context = {
       insertCss,
       pathname: req.path,

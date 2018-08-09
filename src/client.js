@@ -13,7 +13,7 @@ const container = document.getElementById('root')
 let currentLocation = history.location
 
 const scrollPositionsHistory = {}
-const httpClient = Http(fetch, { ...httpConfig })
+const httpClient = Http({ ...httpConfig })
 const context = {
   insertCss: (...styles) => {
     const removeCss = styles.map(x => x._insertCss())

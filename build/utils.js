@@ -5,9 +5,9 @@ _.isDev = !process.argv.includes('--production')
 _.isVerbose = process.argv.includes('--verbose')
 _.isAnalyse = process.argv.includes('--analyze') || process.argv.includes('--analyse')
 
-const script = /\.(js|jsx|mjs)$/;
-const style = /\.(css|less|styl|scss|sass|sss)$/;
-const image = /\.(bmp|gif|jpg|jpeg|png|svg)$/;
+const script = /\.(js|jsx|mjs)$/
+const style = /\.(css|less|styl|scss|sass|sss)$/
+const image = /\.(bmp|gif|jpg|jpeg|png|svg)$/
 _.test = {
   script,
   style,

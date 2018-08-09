@@ -1,12 +1,12 @@
-import path from 'path';
-import webpack from 'webpack';
-import HappyPackPlugins from './happypack.config';
+import path from 'path'
+
+import HappyPackPlugins from './happypack.config'
 import _ from './utils'
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 
 const staticAssetName = _.isDev ?
   '[path][name].[ext]?[hash:8]' :
-  '[hash:8].[ext]';
+  '[hash:8].[ext]'
 
 /**
  * 根据target返回基本配置
@@ -45,95 +45,95 @@ const config = (target) => {
     resolve: {
       modules: ['node_modules', 'src'],
       alias: {
-        "src": _.resolvePath('../src'),
-        "components": _.resolvePath('../src/components')
+        'src': _.resolvePath('../src'),
+        'components': _.resolvePath('../src/components')
       },
-      extensions: [".js", ".json", ".jsx", ".css"],
+      extensions: ['.js', '.json', '.jsx', '.css'],
     },
 
     module: {
       strictExportPresence: true,
       rules: [{
-          test: _.test.script,
-          include: [
-            _.resolvePath('../src'),
-            _.resolvePath('../build'),
-          ],
-          loader: `happypack/loader?id=${isWeb? 'js' : 'nodejs'}`,
+        test: _.test.script,
+        include: [
+          _.resolvePath('../src'),
+          _.resolvePath('../build'),
+        ],
+        loader: `happypack/loader?id=${isWeb? 'js' : 'nodejs'}`,
+      },
+      {
+        test: /\.css$/,
+        include: [/node_modules\/.*antd/],
+        loader: 'happypack/loader?id=antd-style',
+      },
+      {
+        test: _.test.style,
+        exclude: [_.resolvePath('../src'), /node_modules\/.*antd/],
+        include: _.resolvePath('../src/assets'),
+        issuer: {
+          not: [_.test.style]
         },
-        {
-          test: /\.css$/,
-          include: [/node_modules\/.*antd/],
-          loader: 'happypack/loader?id=antd-style',
+        loader: 'happypack/loader?id=external-style',
+      },
+      {
+        test: _.test.style,
+        include: _.resolvePath('../src'),
+        exclude: [/node_modules\/.*antd/],
+        issuer: {
+          not: [_.test.style]
         },
-        {
-          test: _.test.style,
-          exclude: [_.resolvePath('../src'), /node_modules\/.*antd/],
-          include: _.resolvePath('../src/assets'),
-          issuer: {
-            not: [_.test.style]
-          },
-          loader: 'happypack/loader?id=external-style',
-        },
-        {
-          test: _.test.style,
-          include: _.resolvePath('../src'),
-          exclude: [/node_modules\/.*antd/],
-          issuer: {
-            not: [_.test.style]
-          },
-          loader: 'happypack/loader?id=style',
-        },
-        {
-          test: _.test.image,
-          oneOf: [
-            {
-              issuer: _.test.script,
-              oneOf: [
-                {
-                  test: /\.svg$/,
-                  loader: 'svg-url-loader',
-                  options: {
-                    name: staticAssetName,
-                    limit: 4096, // 4kb
-                    emitFile: isWeb,
-                  },
+        loader: 'happypack/loader?id=style',
+      },
+      {
+        test: _.test.image,
+        oneOf: [
+          {
+            issuer: _.test.script,
+            oneOf: [
+              {
+                test: /\.svg$/,
+                loader: 'svg-url-loader',
+                options: {
+                  name: staticAssetName,
+                  limit: 4096, // 4kb
+                  emitFile: isWeb,
                 },
-                {
-                  loader: 'url-loader',
-                  options: {
-                    name: staticAssetName,
-                    limit: 4096, // 4kb
-                    emitFile: isWeb,
-                  },
-                },
-              ],
-            },
-            {
-              loader: 'file-loader',
-              options: {
-                name: staticAssetName,
-                emitFile: isWeb,
               },
-            },
-          ],
-        },
-        {
-          test: /\.txt$/,
-          loader: 'raw-loader',
-        },
-        {
-          exclude: [_.test.script, _.test.style, _.test.image, /\.json$/, /\.txt$/, _.resolvePath('../public')],
-          loader: 'file-loader',
-          options: {
-            name: staticAssetName,
-            emitFile: isWeb,
+              {
+                loader: 'url-loader',
+                options: {
+                  name: staticAssetName,
+                  limit: 4096, // 4kb
+                  emitFile: isWeb,
+                },
+              },
+            ],
           },
+          {
+            loader: 'file-loader',
+            options: {
+              name: staticAssetName,
+              emitFile: isWeb,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.txt$/,
+        loader: 'raw-loader',
+      },
+      {
+        exclude: [_.test.script, _.test.style, _.test.image, /\.json$/, /\.txt$/, _.resolvePath('../public')],
+        loader: 'file-loader',
+        options: {
+          name: staticAssetName,
+          emitFile: isWeb,
         },
-        ...(_.isDev ? [] : [{
-          test: _.resolvePath('../node_modules/react-deep-force-update/lib/index.js'),
-          loader: 'null-loader',
-        }]),
+      },
+      ...(_.isDev ? [] : [{
+        test: _.resolvePath('../node_modules/react-deep-force-update/lib/index.js'),
+        loader: 'null-loader',
+      }]),
       ],
     },
     plugins: [

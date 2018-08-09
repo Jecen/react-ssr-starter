@@ -1,5 +1,5 @@
 
-import { cleanDir, makeDir, writeFile } from '../tools/fs';
+import { cleanDir, makeDir } from '../tools/fs'
 
 function clean() {
   return Promise.all([
@@ -9,7 +9,7 @@ function clean() {
       ignore: [],
     }),
     makeDir('dist')
-  ]);
+  ])
 }
 
-export default clean;
+export default clean

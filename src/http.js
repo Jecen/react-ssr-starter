@@ -1,3 +1,4 @@
+import 'whatwg-fetch'
 export class HttpError {
   constructor(errorInfo) {
     const {
@@ -117,7 +118,7 @@ class httpWrapper {
     return finalUrl
   }
 
-  _sendRequest = (fetch, url, method = 'GET', params = {}, opt = {}) => {
+  _sendRequest = (http, url, method = 'GET', params = {}, opt = {}) => {
 
     let fetchUrl = this._initUrl(url, method, opt, params)
 
@@ -144,7 +145,7 @@ class httpWrapper {
         isOver = true
       }, this.timeout)
 
-      fetch(finalUrl, finalOpt)
+      http(finalUrl, finalOpt)
         .then((rsp) => {
           if (this._checkResponse(rsp, reject)) {
             return rsp.json()
@@ -195,29 +196,29 @@ class httpWrapper {
     }
   }
 
-  get(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'GET', params, opt)
+  get(http, url, params, opt) {
+    return this._sendRequest(http, url, 'GET', params, opt)
   }
 
-  post(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'POST', params, opt)
+  post(http, url, params, opt) {
+    return this._sendRequest(http, url, 'POST', params, opt)
   }
 
-  put(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'PUT', params, opt)
+  put(http, url, params, opt) {
+    return this._sendRequest(http, url, 'PUT', params, opt)
   }
 
-  option(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'OPTION', params, opt)
+  option(http, url, params, opt) {
+    return this._sendRequest(http, url, 'OPTION', params, opt)
   }
 
-  delete(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'DELETE', params, opt)
+  delete(http, url, params, opt) {
+    return this._sendRequest(http, url, 'DELETE', params, opt)
   }
 
 }
 
-function creatHttpClient(fetch, option) {
+function creatHttpClient(option, http = fetch) {
 
   const clientWrapper = new httpWrapper(option)
 
@@ -229,7 +230,7 @@ function creatHttpClient(fetch, option) {
   const allowMethod = ['get', 'post', 'put', 'delete', 'option']
 
   allowMethod.forEach(m => {
-    client[m] = async (url, params, opt) => clientWrapper[m](fetch, url, params, opt)
+    client[m] = async (url, params, opt) => clientWrapper[m](http, url, params, opt)
   })
 
   return client

@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { Button } from "antd";
-import PropTypes from "prop-types";
+import React, { Component } from 'react'
+import { Button } from 'antd'
+import PropTypes from 'prop-types'
 
 class Home extends Component {
   static contextTypes = {
@@ -12,8 +12,8 @@ class Home extends Component {
   static propTypes = {};
 
   constructor(props) {
-    super(props);
-    this.state = {};
+    super(props)
+    this.state = {}
   }
 
   handleClick = () => {
@@ -26,8 +26,8 @@ class Home extends Component {
       <div className="page">
         <Button onClick={this.handleClick}>Logout</Button>
       </div>
-    );
+    )
   }
 }
 
-export default Home;
+export default Home
