@@ -34,9 +34,10 @@ class App extends React.Component {
 
   UNSAFE_componentWillMount(){
     const {fetch, nav} = this.props.context
-    fetch.setErrorHook((error) => {
+    fetch.setErrorHook((error, apiUrl) => {
       const {message: msg} = error
       msg && message.error(msg, 1)
+      console.log(apiUrl, '请求失败')
     })
     fetch.injectAfter((rsp) => {
       console.log('after hook1', rsp)

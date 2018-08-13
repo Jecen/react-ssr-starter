@@ -118,6 +118,55 @@ class httpWrapper {
     return finalUrl
   }
 
+  _sendRequestWithTimeOut = (apiPromise, overHandler) => {
+    return Promise.race([
+      apiPromise,
+      new Promise((_, reject) => {
+        setTimeout(() => {
+          const error = new HttpError({
+            message: '请求超时',
+            code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
+            httpStatus: 901,
+          })
+          reject(error)
+          overHandler(error)
+        }, this.timeout)
+      })
+    ])
+  } 
+
+  _getApiPromise = (http, finalUrl, finalOpt, overHandler, getOverStatus, setOver) =>
+    new Promise((resolve, reject) =>
+      http(finalUrl, finalOpt)
+        .then((rsp) => {
+          if (this._checkResponse(rsp, reject)) {
+            return rsp.json()
+          }
+          return {}
+        })
+        .catch(() => {
+          const error = new HttpError({
+            message: '请求失败，请检查网络情况，并联系管理员。',
+            code: HttpError.ERROR_CODE.RESPONSE_PARSING_FAILED,
+            httpStatus: null,
+          })
+          reject(error)
+          overHandler(error)
+        })
+        .then((rsp) => {
+          this.afterHooks.forEach(hook => {
+            if (!getOverStatus()) {
+              const hookRst = hook(rsp)
+              if (hookRst instanceof HttpError) {
+                reject(hookRst)
+                overHandler(hookRst)
+              }
+            }
+          })
+          setOver()
+          resolve(rsp)
+        }))
+
   _sendRequest = (http, url, method = 'GET', params = {}, opt = {}) => {
 
     let fetchUrl = this._initUrl(url, method, opt, params)
@@ -132,51 +181,13 @@ class httpWrapper {
       return hook([url, opt]) || [url, opt]
     }, [fetchUrl, fetchOpt])
     let isOver = false
-    return Promise.race([
-      new Promise((resolve, reject) => http(finalUrl, finalOpt)
-        .then((rsp) => {
-          if (this._checkResponse(rsp, reject)) {
-            return rsp.json()
-          }
-          return {}
-        })
-        .catch(() => {
-          const error = new HttpError({
-            message: '请求失败，请检查网络情况，并联系管理员。',
-            code: HttpError.ERROR_CODE.RESPONSE_PARSING_FAILED,
-            httpStatus: null,
-          })
-          reject(error)
-          !isOver && this.errorHook(error)
-          isOver = true
-        })
-        .then((rsp) => {
-          this.afterHooks.forEach(hook => {
-            if (!isOver) {
-              const hookRst = hook(rsp)
-              if (hookRst instanceof HttpError) {
-                reject(hookRst)
-                !isOver && this.errorHook(hookRst)
-                isOver = true
-              }
-            }
-          })
-          isOver = true
-          resolve(rsp)
-        })),
-      new Promise((_, reject) => {
-        setTimeout(() => {
-          const error = new HttpError({
-            message: '请求超时',
-            code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
-            httpStatus: 901,
-          })
-          reject(error)
-          !isOver && this.errorHook(error)
-          isOver = true
-        }, this.timeout)
-      })
-    ])
+    const overHandler = (error) => {
+      !isOver && this.errorHook(error, fetchUrl)
+      isOver = true
+    }
+    const apiPromise = this._getApiPromise(http, finalUrl, finalOpt, overHandler, () => isOver, () => isOver = true )
+    const request = this._sendRequestWithTimeOut(apiPromise, overHandler)
+    return request
   }
 
   injectAfter = (after) => {
