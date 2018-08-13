@@ -12,6 +12,7 @@ class Login extends Component {
       username: '',
       password: '',
       isRemember: false,
+      isLoading: false
     }
   }
 
@@ -27,6 +28,11 @@ class Login extends Component {
   };
 
   login = async ({username , password , remember}) => {
+    const {isLoading} = this.state
+    if (isLoading) return
+    this.setState({
+      isLoading: true
+    })
     const { nav, store } = this.context
     const { state } = store
     try {
@@ -37,6 +43,10 @@ class Login extends Component {
       nav.push('/home')
     } catch (error) {
       console.log('login page get error!!', error)
+    } finally {
+      this.setState({
+        isLoading: false
+      })
     }
   };
 

@@ -35,11 +35,12 @@ class App extends React.Component {
   UNSAFE_componentWillMount(){
     const {fetch, nav} = this.props.context
     fetch.setErrorHook((error) => {
-      message.error(error.message, 1)
+      const {message: msg} = error
+      msg && message.error(msg, 1)
     })
     fetch.injectAfter((rsp) => {
       console.log('after hook1', rsp)
-      if (rsp.code === 40101) { // token 失效
+      if (rsp && rsp.code && rsp.code === 40101) { // token 失效
         console.log(rsp.msg)
         nav.replace('/login')
       }

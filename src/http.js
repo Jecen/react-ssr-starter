@@ -131,34 +131,24 @@ class httpWrapper {
     const [finalUrl, finalOpt] = this.beforeHooks.reduce(([url, opt], hook) => {
       return hook([url, opt]) || [url, opt]
     }, [fetchUrl, fetchOpt])
-
-    return new Promise((resolve, reject) => {
-      let isOver = false
-      setTimeout(() => {
-        const error = new HttpError({
-          message: '请求超时',
-          code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
-          httpStatus: 901,
-        })
-        reject(error)
-        !isOver && this.errorHook(error)
-        isOver = true
-      }, this.timeout)
-
-      http(finalUrl, finalOpt)
+    let isOver = false
+    return Promise.race([
+      new Promise((resolve, reject) => http(finalUrl, finalOpt)
         .then((rsp) => {
           if (this._checkResponse(rsp, reject)) {
             return rsp.json()
           }
           return {}
         })
-        .catch((e) => {
+        .catch(() => {
           const error = new HttpError({
-            message: e,
+            message: '请求失败，请检查网络情况，并联系管理员。',
             code: HttpError.ERROR_CODE.RESPONSE_PARSING_FAILED,
             httpStatus: null,
           })
           reject(error)
+          !isOver && this.errorHook(error)
+          isOver = true
         })
         .then((rsp) => {
           this.afterHooks.forEach(hook => {
@@ -170,16 +160,23 @@ class httpWrapper {
                 isOver = true
               }
             }
-            // !isOver && hook(rsp, (error) => {
-            //   reject(error)
-            //   !isOver && this.errorHook(error)
-            //   isOver = true
-            // })
           })
           isOver = true
           resolve(rsp)
-        })
-    })
+        })),
+      new Promise((_, reject) => {
+        setTimeout(() => {
+          const error = new HttpError({
+            message: '请求超时',
+            code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
+            httpStatus: 901,
+          })
+          reject(error)
+          !isOver && this.errorHook(error)
+          isOver = true
+        }, this.timeout)
+      })
+    ])
   }
 
   injectAfter = (after) => {
