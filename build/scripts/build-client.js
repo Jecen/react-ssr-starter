@@ -25,15 +25,15 @@ function buildClient() {
     }
     webpack(config).run((err, stats) => {
       if (err) {
-        return reject(err);
+        return reject(err)
       }
-      console.info(stats.toString(config.stats));
+      console.info(stats.toString(config.stats))
       if (stats.hasErrors()) {
-        return reject(new Error('Webpack compilation errors'));
+        return reject(new Error('Webpack compilation errors'))
       }
-      return resolve();
-    });
+      return resolve()
+    })
   })
 }
 
-export default buildClient;
+export default buildClient

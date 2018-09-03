@@ -7,6 +7,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.52",
     "@babel/node": "^7.0.0-beta.52",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
     "@babel/plugin-transform-react-constant-elements": "^7.0.0-beta.52",
     "@babel/plugin-transform-react-inline-elements": "^7.0.0-beta.52",
     "@babel/preset-env": "^7.0.0-beta.52",
@@ -16,9 +17,15 @@
     "autoprefixer": "^8.6.5",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.5",
+    "babel-jest": "^23.4.2",
     "babel-loader": "^7.1.5",
     "babel-plugin-import": "^1.8.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.13",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-mobx": "^1.0.3",
+    "babel-preset-react": "^6.24.1",
     "browser-sync": "^2.24.5",
     "child_process": "^1.0.2",
     "clean-webpack-plugin": "^0.1.19",
@@ -32,7 +39,11 @@
     "happypack": "^5.0.0",
     "html-webpack-plugin": "^3.2.0",
     "http-proxy-middleware": "^0.18.0",
+    "husky": "^0.14.3",
+    "identity-obj-proxy": "^3.0.0",
     "isomorphic-style-loader": "^4.0.0",
+    "jest": "^23.4.2",
+    "lint-staged": "^7.2.0",
     "node-sass": "^4.9.2",
     "null-loader": "^0.1.1",
     "postcss-import": "^11.1.0",
@@ -44,6 +55,7 @@
     "react-dev-utils": "^5.0.1",
     "react-error-overlay": "^4.0.0",
     "react-hot-loader": "^4.3.3",
+    "react-test-renderer": "^16.4.2",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
     "svg-url-loader": "^2.3.2",
@@ -65,6 +77,8 @@
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "history": "^4.7.2",
+    "mobx": "^5.0.3",
+    "mobx-react": "^5.2.3",
     "node-fetch": "^2.1.2",
     "prop-type": "^0.0.1",
     "query-string": "^6.1.0",
@@ -90,6 +104,14 @@
     "dev": "babel-node build/scripts/run dev --development",
     "build-client": "babel-node build/scripts/run build --client --production",
     "build-server": "babel-node build/scripts/run build --server --production",
-    "analyse": "babel-node build/scripts/run analyse"
+    "analyse": "babel-node build/scripts/run analyse",
+    "precommit": "lint-staged",
+    "test": "jest"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

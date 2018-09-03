@@ -6,6 +6,5 @@
       ["@babel/preset-stage-2", { "decoratorsLegacy": true }]
     ],
     "ignore": ["node_modules", "dist"],
-    "plugins": [
-    ]
+    "plugins": ["transform-class-properties"]
   }

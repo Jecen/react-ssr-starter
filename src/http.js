@@ -1,3 +1,4 @@
+import 'whatwg-fetch'
 export class HttpError {
   constructor(errorInfo) {
     const {
@@ -21,7 +22,7 @@ HttpError.ERROR_CODE = {
   RESPONSE_PARSING_FAILED: 'RESPONSE_PARSING_FAILED',
 }
 
-class httpWrapper {
+class HttpShell {
   constructor(option) {
     const {
       conf: config = { // request配置相关
@@ -56,11 +57,7 @@ class httpWrapper {
     return type === 'string' ? queryList.join('&') : formData
   }
 
-  _getRequestOptions = ({
-    opt,
-    method,
-    params
-  }) => {
+  _getRequestOptions = ({ opt, method, params}) => {
     const finalOpt = {
       method,
       ...opt
@@ -82,19 +79,19 @@ class httpWrapper {
         finalOpt.body = typeof params === 'string' ? params : JSON.stringify(params)
       } else if (contentType.indexOf('application/x-www-form-urlencoded') > -1) {
         finalOpt.body = Object.keys(params).map((key) => {
-            return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
-          })
+          return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+        })
           .join('&')
       } else if (contentType.indexOf('multipart/form-data') > -1) {
-        finalOpt.body = _getQueryData(params, 'formData')
+        finalOpt.body = this._getQueryData(params, 'formData')
       }
     }
     return Object.assign({}, this.config, finalOpt)
   }
 
-  _checkResponse = (rsp, reject) => true
+  _checkResponse = () => true
 
-  _initUrl = (url, method, opt) => {
+  _initUrl = (url, method, opt, params) => {
     const urlType = url.indexOf('://') !== -1 ? 'FULL' : 'PATH'
 
     let queryString = null
@@ -117,9 +114,58 @@ class httpWrapper {
     return finalUrl
   }
 
-  _sendRequest = (fetch, url, method = 'GET', params = {}, opt = {}) => {
+  _sendRequestWithTimeOut = (apiPromise, overHandler) => {
+    return Promise.race([
+      apiPromise,
+      new Promise((_, reject) => {
+        setTimeout(() => {
+          const error = new HttpError({
+            message: '请求超时',
+            code: HttpError.ERROR_CODE.REQUEST_TIMEOUT,
+            httpStatus: 901,
+          })
+          reject(error)
+          overHandler(error)
+        }, this.timeout)
+      })
+    ])
+  }
 
-    let fetchUrl = this._initUrl(url, method, opt)
+  _getApiPromise = (http, finalUrl, finalOpt, overHandler, getOverStatus, setOver) =>
+    new Promise((resolve, reject) =>
+      http(finalUrl, finalOpt)
+        .then((rsp) => {
+          if (this._checkResponse(rsp, reject)) {
+            return rsp.json()
+          }
+          return {}
+        })
+        .catch(() => {
+          const error = new HttpError({
+            message: '请求失败，请检查网络情况，并联系管理员。',
+            code: HttpError.ERROR_CODE.RESPONSE_PARSING_FAILED,
+            httpStatus: null,
+          })
+          reject(error)
+          overHandler(error)
+        })
+        .then((rsp) => {
+          this.afterHooks.forEach(hook => {
+            if (!getOverStatus()) {
+              const hookRst = hook(rsp)
+              if (hookRst instanceof HttpError) {
+                reject(hookRst)
+                overHandler(hookRst)
+              }
+            }
+          })
+          setOver()
+          resolve(rsp)
+        }))
+
+  _sendRequest = (http, url, method = 'GET', params = {}, opt = {}) => {
+
+    let fetchUrl = this._initUrl(url, method, opt, params)
 
     let fetchOpt = this._getRequestOptions({
       opt,
@@ -128,48 +174,16 @@ class httpWrapper {
     })
 
     const [finalUrl, finalOpt] = this.beforeHooks.reduce(([url, opt], hook) => {
-      return hook([url, opt]) || [url, opt];
+      return hook([url, opt]) || [url, opt]
     }, [fetchUrl, fetchOpt])
-
-    return new Promise((resolve, reject) => {
-      let isOver = false
-      setTimeout(() => {
-        const error = new HttpError({
-          message: 'time out !!!',
-          code: 'TIME_OUT_CODE',
-          httpStatus: 901,
-        })
-        reject(error)
-        !isOver && this.errorHook(error)
-        isOver = true
-      }, this.timeout);
-
-      fetch(finalUrl, finalOpt)
-        .then((rsp) => {
-          if (this._checkResponse(rsp, reject)) {
-            return rsp.json()
-          }
-          return {}
-        })
-        .catch((e) => {
-          const error = new HttpError({
-            message: e,
-            code: HttpError.ERROR_CODE.RESPONSE_PARSING_FAILED,
-            httpStatus: null,
-          })
-          reject(error)
-        })
-        .then((rsp) => {
-          this.afterHooks.forEach(hook => {
-            !isOver && hook(rsp, (error) => {
-              reject(error)
-              !isOver && this.errorHook(error)
-              isOver = true
-            })
-          })
-          resolve(rsp)
-        })
-    })
+    let isOver = false
+    const overHandler = (error) => {
+      !isOver && this.errorHook(error, fetchUrl)
+      isOver = true
+    }
+    const apiPromise = this._getApiPromise(http, finalUrl, finalOpt, overHandler, () => isOver, () => isOver = true)
+    const request = this._sendRequestWithTimeOut(apiPromise, overHandler)
+    return request
   }
 
   injectAfter = (after) => {
@@ -186,31 +200,31 @@ class httpWrapper {
     }
   }
 
-  get(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'GET', params, opt)
+  get(http, url, params, opt) {
+    return this._sendRequest(http, url, 'GET', params, opt)
   }
 
-  post(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'POST', params, opt)
+  post(http, url, params, opt) {
+    return this._sendRequest(http, url, 'POST', params, opt)
   }
 
-  put(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'PUT', params, opt)
+  put(http, url, params, opt) {
+    return this._sendRequest(http, url, 'PUT', params, opt)
   }
 
-  option(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'OPTION', params, opt)
+  option(http, url, params, opt) {
+    return this._sendRequest(http, url, 'OPTION', params, opt)
   }
 
-  delete(fetch, url, params, opt) {
-    return this._sendRequest(fetch, url, 'DELETE', params, opt)
+  delete(http, url, params, opt) {
+    return this._sendRequest(http, url, 'DELETE', params, opt)
   }
 
 }
 
-function creatHttpClient(fetch, option) {
-
-  const clientWrapper = new httpWrapper(option)
+function creatHttpClient(option, http = fetch) {
+ 
+  const clientWrapper = new HttpShell(option)
 
   const client = {
     injectAfter: clientWrapper.injectAfter,
@@ -220,11 +234,35 @@ function creatHttpClient(fetch, option) {
   const allowMethod = ['get', 'post', 'put', 'delete', 'option']
 
   allowMethod.forEach(m => {
-    client[m] = async (url, params, opt) => clientWrapper[m](fetch, url, params, opt)
-  });
+    client[m] = async (url, params, opt) => clientWrapper[m](http, url, params, opt)
+  })
 
   return client
 
+}
+
+export const httpConfig = {
+  conf: {
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  },
+  before: [
+    ([url, opt]) => {
+      console.log('hook1', url, opt)
+    },
+    ([url, opt]) => {
+      console.log('hook2', url, opt)
+    }
+  ],
+  after: [
+    (rsp) => {
+      console.log('after hook1', rsp)
+    },
+  ],
+  timeout: 5000
 }
 
 export default creatHttpClient

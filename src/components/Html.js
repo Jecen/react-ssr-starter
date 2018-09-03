@@ -1,8 +1,8 @@
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import serialize from 'serialize-javascript';
-
+import React from 'react'
+import PropTypes from 'prop-types'
+import serialize from 'serialize-javascript'
+import resetCss from '../assets/reset-1.3.3.css'
 
 class Html extends React.Component {
   static propTypes = {
@@ -25,7 +25,7 @@ class Html extends React.Component {
   };
 
   render() {
-    const { title, description, styles, scripts, app, children } = this.props;
+    const { title, description, styles, scripts, app, children } = this.props
     return (
       <html lang="en">
         <head>
@@ -37,26 +37,29 @@ class Html extends React.Component {
           {scripts.map(script => (
             <link key={script} rel="preload" href={script} as="script" />
           ))}
-          <link rel="manifest" href="/site.webmanifest" />
           <link rel="apple-touch-icon" href="/icon.png" />
-          {styles.map(style => (
-            <style
-              key={style.id}
-              id={style.id}
-              dangerouslySetInnerHTML={{ __html: style.cssText }}
-            />
-          ))}
+          {styles.map(style => {
+            return (
+              <style
+                key={style.id}
+                id={style.id}
+                dangerouslySetInnerHTML={{ __html: style.cssText }}
+              />
+            )})}
+          <style
+            key={'reset-css'}
+            id={'reset-css'}
+            dangerouslySetInnerHTML={{ __html: resetCss._getCss() }}
+          />
         </head>
         <body>
-          <div id="root" dangerouslySetInnerHTML={{ __html: children }} />
-          <script
-            dangerouslySetInnerHTML={{ __html: `window.App=${serialize(app)}` }}
-          />
+          <div id="root" className={resetCss['root-dom']} dangerouslySetInnerHTML={{ __html: children }} />
+          <script dangerouslySetInnerHTML={{ __html: `window.App=${serialize(app)}` }} />
           {scripts.map(script => <script key={script} src={script} />)}
         </body>
       </html>
-    );
+    )
   }
 }
 
-export default Html;
+export default Html

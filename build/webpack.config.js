@@ -1,13 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-import webpack from 'webpack';
-import nodeExternals from 'webpack-node-externals';
+import fs from 'fs'
+import path from 'path'
+import webpack from 'webpack'
+import nodeExternals from 'webpack-node-externals'
 import getConfig from './webpack.base'
 import _ from './utils'
 import WebpackAssetsManifest from 'webpack-assets-manifest'
 import {
   BundleAnalyzerPlugin
-} from 'webpack-bundle-analyzer';
+} from 'webpack-bundle-analyzer'
 
 
 const clientBase = getConfig('web')
@@ -30,19 +30,19 @@ const clientConfig = {
         value
       }) => {
         // You can prevent adding items to the manifest by returning false.
-        if (key.toLowerCase().endsWith('.map')) return false;
+        if (key.toLowerCase().endsWith('.map')) return false
         return {
           key,
           value
-        };
+        }
       },
       done: (manifest, stats) => {
 
         // Write chunk-manifest.json.json
-        const chunkFileName = `${path.resolve(__dirname, '../dist')}/chunk-manifest.json`;
+        const chunkFileName = `${path.resolve(__dirname, '../dist')}/chunk-manifest.json`
         try {
-          const fileFilter = file => !file.endsWith('.map');
-          const addPath = file => manifest.getPublicPath(file);
+          const fileFilter = file => !file.endsWith('.map')
+          const addPath = file => manifest.getPublicPath(file)
           const chunkFiles = stats.compilation.chunkGroups.reduce((acc, c) => {
             acc[c.name] = [
               ...(acc[c.name] || []),
@@ -52,13 +52,13 @@ const clientConfig = {
                   ...cc.files.filter(fileFilter).map(addPath),
                 ], [],
               ),
-            ];
-            return acc;
-          }, Object.create(null));
-          fs.writeFileSync(chunkFileName, JSON.stringify(chunkFiles, null, 2));
+            ]
+            return acc
+          }, Object.create(null))
+          fs.writeFileSync(chunkFileName, JSON.stringify(chunkFiles, null, 2))
         } catch (err) {
-          console.error(`ERROR: Cannot write ${chunkFileName}: `, err);
-          if (!_.isDev) process.exit(1);
+          console.error(`ERROR: Cannot write ${chunkFileName}: `, err)
+          if (!_.isDev) process.exit(1)
         }
       },
     }),

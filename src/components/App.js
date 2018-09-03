@@ -1,6 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {message} from 'antd'
+import React from 'react'
+import PropTypes from 'prop-types'
+import { message } from 'antd'
+import Store from '../store'
 
 const ContextType = {
   insertCss: PropTypes.func.isRequired,
@@ -8,25 +9,45 @@ const ContextType = {
   query: PropTypes.object,
   nav: PropTypes.object,
   fetch: PropTypes.object,
-};
+}
 
-class App extends React.PureComponent {
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {store: {}}
+  }
   static propTypes = {
     context: PropTypes.shape(ContextType).isRequired,
     children: PropTypes.element.isRequired,
   };
 
-  static childContextTypes = ContextType;
+  static childContextTypes = {
+    ...ContextType,
+    store: PropTypes.object
+  };
 
   getChildContext() {
-    return this.props.context;
+    return {...this.props.context, store: this.state.store}
   }
 
-  componentWillMount(){
-    const {fetch} = this.props.context
-    fetch.setErrorHook((error) => {
-      message.error(error.message, 1)
+  UNSAFE_componentWillMount(){
+    const {fetch, nav} = this.props.context
+    fetch.setErrorHook((error, apiUrl) => {
+      const {message: msg} = error
+      msg && message.error(msg, 1)
+      console.log(apiUrl, '请求失败')
     })
+    fetch.injectAfter((rsp) => {
+      console.log('after hook1', rsp)
+      if (rsp && rsp.code && rsp.code === 40101) { // token 失效
+        console.log(rsp.msg)
+        nav.replace('/login')
+      }
+    })
+    this.setState({store: new Store(fetch)})
+  }
+  componentDidMount() {
+    this.state.store.resetStore && this.state.store.resetStore()
   }
 
   render() {
@@ -34,4 +55,4 @@ class App extends React.PureComponent {
   }
 }
 
-export default App;
+export default App

@@ -1,92 +1,74 @@
 import 'whatwg-fetch'
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./components/App";
-import queryString from "query-string";
-import router from "./router";
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from './components/App'
+import queryString from 'query-string'
+import router from './router'
 import history from './history'
 import { updateMeta } from './html-tool'
-import Http, {HttpError} from './http'
+import Http, {httpConfig} from './http'
 
-const container = document.getElementById("root");
-let currentLocation = history.location;
-const scrollPositionsHistory = {};
+const container = document.getElementById('root')
+
+let currentLocation = history.location
+
+const scrollPositionsHistory = {}
+const httpClient = Http({ ...httpConfig })
 const context = {
   insertCss: (...styles) => {
-    const removeCss = styles.map(x => x._insertCss());
+    const removeCss = styles.map(x => x._insertCss())
     return () => {
-      removeCss.forEach(f => f());
-    };
+      removeCss.forEach(f => f())
+    }
   },
-  fetch: Http(fetch, {
-    conf: {
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-    before: [
-      ([url, opt]) => {
-        console.log('hook1', url, opt)
-      },
-      ([url, opt]) => {
-        console.log('hook2', url, opt)
-      }
-    ],
-    after: [
-      (rsp) => {
-        console.log('after hook1', rsp)
-      },
-    ],
-    timeout: 5000
-  }),
-  nav: history
-};
+  fetch: httpClient,
+  nav: history,
+}
 
 async function onLocationChange(location, action) {
- // Remember the latest scroll position for the previous location
+  // Remember the latest scroll position for the previous location
   scrollPositionsHistory[currentLocation.key] = {
     scrollX: window.pageXOffset,
     scrollY: window.pageYOffset
-  };
-  // Delete stored scroll position for next page if any
-  if (action === "PUSH") {
-    delete scrollPositionsHistory[location.key];
   }
-  currentLocation = location;
+  // Delete stored scroll position for next page if any
+  if (action === 'PUSH') {
+    delete scrollPositionsHistory[location.key]
+  }
+  currentLocation = location
 
-  const isInitialRender = !action;
+  const isInitialRender = !action
   try {
-    context.pathname = location.pathname;
-    context.query = queryString.parse(location.search);
+    context.pathname = location.pathname
+    context.query = queryString.parse(location.search)
     
-    const route = await router.resolve(context);
+    const route = await router.resolve(context)
     if (currentLocation.key !== location.key) {
-      return;
+      return
     }
 
     if (route.redirect) {
-      history.replace(route.redirect);
-      return;
+      history.replace(route.redirect)
+      return
     }
-    const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render;
+
+    const renderReactApp = isInitialRender ? ReactDOM.hydrate : ReactDOM.render
     renderReactApp(
       <App context={context}>{route.component}</App>,
       container,
       () => {
-        document.title = route.title || '';
+        document.title = route.title || ''
 
         if (isInitialRender) {
-          if (window.history && "scrollRestoration" in window.history) {
-            window.history.scrollRestoration = "manual";
+          if (window.history && 'scrollRestoration' in window.history) {
+            window.history.scrollRestoration = 'manual'
           }
 
-          const elem = document.getElementById("css");
-          if (elem) elem.parentNode.removeChild(elem);
-          return;
+          const elem = document.getElementById('css')
+          if (elem) elem.parentNode.removeChild(elem)
+          return
         }
-        updateMeta('description', route.description);
+        updateMeta('description', route.description)
         // Update necessary tags in <head> at runtime here, ie:
         // updateMeta('keywords', route.keywords);
         // updateCustomMeta('og:url', route.canonicalUrl);
@@ -94,44 +76,44 @@ async function onLocationChange(location, action) {
         // updateLink('canonical', route.canonicalUrl);
         // etc.
 
-        let scrollX = 0;
-        let scrollY = 0;
-        const pos = scrollPositionsHistory[location.key];
+        let scrollX = 0
+        let scrollY = 0
+        const pos = scrollPositionsHistory[location.key]
         if (pos) {
-          scrollX = pos.scrollX;
-          scrollY = pos.scrollY;
+          scrollX = pos.scrollX
+          scrollY = pos.scrollY
         } else {
-          const targetHash = location.hash.substr(1);
+          const targetHash = location.hash.substr(1)
           if (targetHash) {
-            const target = document.getElementById(targetHash);
+            const target = document.getElementById(targetHash)
             if (target) {
-              scrollY = window.pageYOffset + target.getBoundingClientRect().top;
+              scrollY = window.pageYOffset + target.getBoundingClientRect().top
             }
           }
         }
 
-        window.scrollTo(scrollX, scrollY);
+        window.scrollTo(scrollX, scrollY)
       }
-    );
+    )
   } catch (error) {
-    if (__DEV__) {
-      throw error;
+    if (__DEV__) { // eslint-disable-line
+      throw error
     }
 
-    console.error(error);
+    console.error(error)
 
     if (!isInitialRender && currentLocation.key === location.key) {
-      console.error("RSK will reload your page after error");
-      window.location.reload();
+      console.error('RSK will reload your page after error')
+      window.location.reload()
     }
   }
 }
 
-history.listen(onLocationChange);
-onLocationChange(currentLocation);
+history.listen(onLocationChange)
+onLocationChange(currentLocation)
 
 if (module.hot) {
-  module.hot.accept("./routes", () => {
-    onLocationChange(currentLocation);
-  });
+  module.hot.accept('./routes', () => {
+    onLocationChange(currentLocation)
+  })
 }
