@@ -22,7 +22,7 @@ HttpError.ERROR_CODE = {
   RESPONSE_PARSING_FAILED: 'RESPONSE_PARSING_FAILED',
 }
 
-class httpWrapper {
+class HttpShell {
   constructor(option) {
     const {
       conf: config = { // request配置相关
@@ -57,11 +57,7 @@ class httpWrapper {
     return type === 'string' ? queryList.join('&') : formData
   }
 
-  _getRequestOptions = ({
-    opt,
-    method,
-    params
-  }) => {
+  _getRequestOptions = ({ opt, method, params}) => {
     const finalOpt = {
       method,
       ...opt
@@ -133,7 +129,7 @@ class httpWrapper {
         }, this.timeout)
       })
     ])
-  } 
+  }
 
   _getApiPromise = (http, finalUrl, finalOpt, overHandler, getOverStatus, setOver) =>
     new Promise((resolve, reject) =>
@@ -185,7 +181,7 @@ class httpWrapper {
       !isOver && this.errorHook(error, fetchUrl)
       isOver = true
     }
-    const apiPromise = this._getApiPromise(http, finalUrl, finalOpt, overHandler, () => isOver, () => isOver = true )
+    const apiPromise = this._getApiPromise(http, finalUrl, finalOpt, overHandler, () => isOver, () => isOver = true)
     const request = this._sendRequestWithTimeOut(apiPromise, overHandler)
     return request
   }
@@ -227,8 +223,8 @@ class httpWrapper {
 }
 
 function creatHttpClient(option, http = fetch) {
-
-  const clientWrapper = new httpWrapper(option)
+ 
+  const clientWrapper = new HttpShell(option)
 
   const client = {
     injectAfter: clientWrapper.injectAfter,

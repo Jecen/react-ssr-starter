@@ -14,9 +14,7 @@ const ContextType = {
 class App extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      store: {}
-    }
+    this.state = {store: {}}
   }
   static propTypes = {
     context: PropTypes.shape(ContextType).isRequired,
@@ -46,9 +44,7 @@ class App extends React.Component {
         nav.replace('/login')
       }
     })
-    this.setState({
-      store: new Store(fetch)
-    })
+    this.setState({store: new Store(fetch)})
   }
   componentDidMount() {
     this.state.store.resetStore && this.state.store.resetStore()

@@ -23,16 +23,12 @@ class Login extends Component {
 
   static defaultProps = {};
 
-  static propTypes = {
-    form: PropTypes.any
-  };
+  static propTypes = {form: PropTypes.any};
 
   login = async ({username , password , remember}) => {
     const {isLoading} = this.state
     if (isLoading) return
-    this.setState({
-      isLoading: true
-    })
+    this.setState({isLoading: true})
     const { nav, store } = this.context
     const { state } = store
     try {
@@ -44,9 +40,7 @@ class Login extends Component {
     } catch (error) {
       console.log('login page get error!!', error)
     } finally {
-      this.setState({
-        isLoading: false
-      })
+      this.setState({isLoading: false})
     }
   };
 
@@ -79,16 +73,12 @@ class Login extends Component {
       <div className={s['login-page']}>
         <Form onSubmit={this.handleSubmit} className={s['login-form']}>
           <FormItem>
-            {getFieldDecorator('username', {
-              rules: [{ required: true, message: 'Please input your username!' }],
-            })(
+            {getFieldDecorator('username', {rules: [{ required: true, message: 'Please input your username!' }],})(
               <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
             )}
           </FormItem>
           <FormItem>
-            {getFieldDecorator('password', {
-              rules: [{ required: true, message: 'Please input your Password!'}],
-            })(
+            {getFieldDecorator('password', {rules: [{ required: true, message: 'Please input your Password!'}],})(
               <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
             )}
           </FormItem>

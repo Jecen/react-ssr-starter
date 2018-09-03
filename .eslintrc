@@ -33,7 +33,14 @@
             "single"
         ],
         "semi": ["error", "never"],
-        "eqeqeq": ["error", "always"]
+        "eqeqeq": ["error", "always"],
+        "object-curly-newline": [
+            "error",
+            {
+              "multiline": true,
+              "consistent": false
+            }
+          ]
     },
     "extends": ["eslint:recommended", "plugin:react/recommended"]
 }
